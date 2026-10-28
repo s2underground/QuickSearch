@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">QuickSearch</string>
+    <!-- description -->
+    <string name="app_desc">Search bar for the map. Find markers, shapes, routes and features in imported KML/KMZ, shapefile and GPX files by name, description, icon or group, and jump to any coordinate you paste (MGRS, UTM, lat/lon, map links).</string>
+
+    <!-- search pane -->
+    <string name="search_hint">Name, callsign, remarks, or coordinates</string>
+    <string name="clear">Clear search</string>
+    <string name="status_hint">Search markers and imported files (KML/KMZ, shapefiles, GPX) by name, description, icon or group, or paste a coordinate (MGRS, UTM, lat/lon, map link).</string>
+    <string name="status_from_self">Distances from you.</string>
+    <string name="status_from_center">Distances from map center.</string>
+    <string name="status_coordinate">Coordinate recognized.</string>
+    <string name="status_none">No matches. Map items searched: %1$d. Imported features searched: %2$d.</string>
+    <string name="status_indexing">Reading imported files…</string>
+    <string name="status_searching_files">Searching imported files…</string>
+    <string name="status_many">Too many matches; showing the top %1$d.</string>
+    <plurals name="status_count">
+        <item quantity="one">%d match.</item>
+        <item quantity="other">%d matches.</item>
+    </plurals>
+
+    <!-- result rows -->
+    <string name="row_go_to">Go to %1$s</string>
+    <string name="row_read_as">Read as %1$s · %2$s</string>
+    <string name="row_pin">Drop pin</string>
+    <string name="pin_remarks">Dropped by QuickSearch from: %1$s</string>
+    <string name="fmt_dd">decimal degrees</string>
+    <string name="fmt_dm">degrees, minutes</string>
+    <string name="fmt_dms">degrees, minutes, seconds</string>
+    <string name="fmt_link">map link</string>
+</resources>

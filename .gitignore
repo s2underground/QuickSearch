@@ -1,0 +1,8 @@
+build/
+app/build/
+.gradle/
+.idea/
+*.iml
+local.properties
+app/proguard-gradle-repackage.txt
+.DS_Store

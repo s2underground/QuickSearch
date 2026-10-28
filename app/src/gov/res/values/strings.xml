@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_desc">Search bar for the map. Find markers, shapes, routes and features in imported KML/KMZ, shapefile and GPX files by name, description, icon or group, and jump to any coordinate you paste (MGRS, UTM, lat/lon, map links).</string>
+</resources>
