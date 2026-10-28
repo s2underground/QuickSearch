@@ -1,23 +1,94 @@
-# QuickSearch — ATAK plugin
+QuickSearch
+_________________________________________________________________
+PURPOSE AND CAPABILITIES
 
-A search bar for ATAK. One box does two jobs:
+A search bar for ATAK. One text box finds anything on a cluttered map and
+jumps the map to any coordinate you paste.
 
-1. **Find things on a cluttered map.** Type part of a name and matching
-   markers, shapes, routes and contacts show up instantly, best match first,
-   with their icon and distance, along with matching features from imported
-   files (KML/KMZ, shapefiles, GPX, GeoJSON), searched by name *and*
-   description. Tap one to fly to it; long-press to fly to it and open its
-   radial menu.
-2. **Jump to a coordinate.** Paste MGRS, UTM, lat/lon in any common style, or
-   a Google/Apple/OSM map link. A "Go to" row appears at the top; tap it to
-   move the map there, or tap **Drop pin** to also leave a spot marker.
+- Searches markers, shapes, routes and contacts by name/callsign, remarks,
+  icon/type and Overlay Manager group, ranked by match quality, then distance.
+- Searches features in imported files (KML/KMZ, shapefiles, GPX, GeoJSON) by
+  name, description (HTML removed), KMZ ExtendedData and file/folder name.
+- Recognizes pasted coordinates (MGRS, UTM, decimal degrees, degrees-minutes,
+  degrees-minutes-seconds, Google/Apple/OSM map links) and moves the map
+  there, optionally dropping a spot marker.
+- Tapping a result flies the map to it; long-press also opens its radial menu.
 
-Built on the ATAK-CIV 5.5.1.8 SDK's plugin template (`IPlugin` API). It
-declares plugin API **5.5.0**, the same as the SDK's own template; ATAK 5.5.x
-and newer accept plugins built for an older API, so it isn't limited to one
-exact ATAK build.
+_________________________________________________________________
+STATUS
+
+Released, version 1.0, for ATAK-CIV 5.6.0. Developed and tested on ATAK-CIV
+5.5.1.8 (developer build) on an Android tablet; built with the 5.6.0 plugin
+template (Gradle 8.14.3, Android Gradle Plugin 8.13.0).
+
+_________________________________________________________________
+POINT OF CONTACTS
+
+<ADD CONTACT NAME AND EMAIL BEFORE SUBMITTING>
+
+_________________________________________________________________
+PORTS REQUIRED
+
+None. QuickSearch makes no network connections.
+
+_________________________________________________________________
+EQUIPMENT REQUIRED
+
+None.
+
+_________________________________________________________________
+EQUIPMENT SUPPORTED
+
+Any Android phone or tablet running ATAK-CIV 5.6.0.
+
+_________________________________________________________________
+COMPILATION
+
+Standard ATAK plugin build from the plugin template, no extra dependencies:
+
+    ./gradlew assembleCivRelease
+
+Unit tests (plain JVM, no device): `./gradlew testCivDebugUnitTest`.
+Lint: `./gradlew lintCivRelease` (0 errors; the remaining warnings are unused
+resources inherited from the plugin template).
+
+_________________________________________________________________
+DEVELOPER NOTES
+
+- No permissions beyond ATAK's own; no native libraries; no third-party
+  libraries.
+- Uses only public plugin SDK APIs, none deprecated: `MapView.getRootGroup()`
+  to walk map items, `MapTouchController.goTo()` to fly to an item (the call
+  the Overlay Manager uses), the File Overlays' `FeatureDataStore2` (read with
+  `queryFeatures`, watched with a content-changed listener) and
+  `FeatureHierarchyListItem.goTo()` for imported features,
+  ATAK's `MGRSPoint`/`UTMPoint` decoders, `ATAKUtilities.scaleToFit()`,
+  `CameraController.Programmatic.panTo()` and `PlacePointTool.MarkerCreator`.
+- Map items are searched on the UI thread (fast); imported-file features are
+  indexed and searched on one background thread, and the index is rebuilt when
+  the feature database reports a change.
+- Version code and name come from git (the template's default), so builds
+  must come from a committed checkout.
 
 ---
+
+# User guide
+
+## Installing
+
+Download the APK for your ATAK version from this project's Releases page and
+open it on the device (or `adb install` it). Then open ATAK. It asks
+"Load plugin: QuickSearch?"; tap OK. If it doesn't ask, open the Plugins
+(Package Manager) screen from ATAK's menu, tap QuickSearch, then **Load**.
+
+The QuickSearch button sits with the other tools in ATAK's menu; add it to the
+main toolbar through ATAK's toolbar customization for one-tap access. Tapping
+the button again closes the panel.
+
+Release APKs are signed through TAK.gov's third-party pipeline and load in the
+regular ATAK-CIV from the Play Store or TAK.gov. A build you make yourself is
+signed with the SDK's development key and only loads in the SDK's developer
+build of ATAK (see "Building it yourself").
 
 ## What it searches
 
@@ -37,8 +108,7 @@ Ties are broken by distance from you, or from the map center if you have no
 position.
 
 Skipped: hidden items, items with no name, and helper items ATAK flags as
-internal (`addToObjList=false` on the item: shape handles, range-ring parts and
-so on).
+internal (shape handles, range-ring parts and so on).
 
 ### Imported files (KML/KMZ, shapefiles, GPX, GeoJSON)
 
@@ -57,13 +127,10 @@ So `hydrant` finds a placemark whose description mentions a hydrant, and
 under the name, plus the start of the description. Tapping one behaves like
 tapping it in the Overlay Manager.
 
-How it works and its limits:
-- ATAK keeps imported features in a database, not as map items, and its query
-  API only filters by name. QuickSearch reads the visible features once in the
-  background to build its own index, and rebuilds it automatically when files
-  are imported, removed, or toggled on and off. The first search after a change
-  shows "Reading imported files…" for a moment.
+Limits:
 - Only visible files are searched (same rule as hidden markers).
+- The first search after importing, removing or toggling a file shows
+  "Reading imported files…" for a moment while the index updates.
 - Up to 100,000 features are indexed; descriptions are kept up to 2,000
   characters each and 4 million characters in total. Past that, features are
   still found by name.
@@ -86,130 +153,40 @@ Notes:
   they're swapped automatically.
 - UTM uses the latitude band letter, as ATAK does, so `17S` means band S
   (northern hemisphere), not "south".
-- MGRS and UTM are decoded with ATAK's own `MGRSPoint`/`UTMPoint` classes, so
-  results match what ATAK shows elsewhere.
+- MGRS and UTM are decoded with ATAK's own classes, so results match what ATAK
+  shows elsewhere.
 - The "Go to" row shows the point in your ATAK coordinate preference. If
   you're zoomed far out (coarser than ~3 m/pixel) the map zooms to about a
   kilometer across; otherwise it only pans and keeps your zoom.
+- **Drop pin** (or long-press the row) leaves a spot marker whose remarks
+  record the text you searched for.
 
 ---
 
-## Installing the prebuilt APK (test phone)
+# Building it yourself
 
-The APKs built from this project (`ATAK-Plugin-QuickSearch-<version>-<commit>-5.5.0-civ-release.apk`
-and `...-civ-debug.apk`) are signed with the SDK's development key, so it loads only in the **developer build of ATAK** that
-comes with the SDK (`atak.apk` inside `ATAK-CIV-5.5.1.8-SDK.zip`), not in the
-Play Store or TAK.gov ATAK. Use a spare phone: the developer build has the same
-package name as regular ATAK, so you have to remove regular ATAK first, which
-deletes its data and settings on that phone.
+You need JDK 17, Android Studio (or just the Android SDK) and the ATAK-CIV SDK
+for your target version (5.6.0 SDK from tak.gov; 5.5.x SDKs are also on the
+Releases page of github.com/TAK-Product-Center/atak-civ).
 
-1. Download `ATAK-CIV-5.5.1.8-SDK.zip` from the Releases page of
-   github.com/TAK-Product-Center/atak-civ and unzip it. You only need
-   `atak.apk` from it.
-2. Copy `atak.apk` and the QuickSearch APK to the phone (USB, cloud drive,
-   email to yourself).
-3. Uninstall regular ATAK if it's installed.
-4. Open `atak.apk` on the phone to install it. Android will ask you to allow
-   installs from the app you opened it with (Files, Drive, etc.); allow it.
-5. Start ATAK once and finish its first-run setup. You should see
-   "DEVELOPER BUILD" in red at the bottom of the map.
-6. Open the QuickSearch APK to install it.
-7. Go back to ATAK. It asks "Load plugin: QuickSearch?"; tap OK. If it
-   doesn't ask, open the Plugins manager from ATAK's menu and load it there.
-8. The QuickSearch button is with the other tools in ATAK's menu. You can add
-   it to the main toolbar through ATAK's toolbar customization. Tapping the
-   button again closes the pane.
+1. **Put this project inside the SDK**, two folders down, e.g.
+   `ATAK-CIV-<version>-SDK/plugins/QuickSearch/`. The build finds `main.jar`,
+   `android_keystore` and `atak-gradle-takdev.jar` by looking two folders up.
+   (Elsewhere, set `sdk.path` and `takdev.plugin` in `local.properties`.)
+2. **Open it in Android Studio.** It creates `local.properties` with your
+   Android SDK path. Under Build → Select Build Variant, choose **civDebug** or
+   **civRelease**.
+3. **Check `ext.ATAK_VERSION`** in `app/build.gradle` (`'5.6.0'`). For another
+   SDK, use the value from that SDK's `samples/plugintemplate/app/build.gradle`.
+4. **Commit, then build** (Build → Build APK, or `./gradlew assembleCivRelease`).
+   ATAK's build plugin takes the build name from the commit ID and the version
+   code from the commit time; outside git it falls back to version code 1,
+   which Android treats as a downgrade.
 
-With a computer and USB debugging, steps 4 and 6 are just
-`adb install atak.apk` and `adb install ATAK-Plugin-QuickSearch-…apk`.
-
----
-
-## Building it yourself
-
-You need JDK 17, Android Studio (or just the Android SDK) and the ATAK-CIV
-SDK, which is the `ATAK-CIV-<version>-SDK.zip` file on the Releases page of
-github.com/TAK-Product-Center/atak-civ.
-
-### 1. Put this project inside the SDK
-
-```
-ATAK-CIV-5.5.1.8-SDK/
-├── main.jar
-├── android_keystore
-├── atak-gradle-takdev.jar
-├── atak.apk
-├── samples/
-└── plugins/
-    └── QuickSearch/        ← this folder
-```
-
-The build finds the SDK by looking two folders up, so this layout needs no
-extra configuration. (If you keep the project elsewhere, set `sdk.path` and
-`takdev.plugin` in `local.properties` to point at the SDK folder and the
-`atak-gradle-takdev.jar` inside it.)
-
-### 2. Open it in Android Studio
-
-Open the `QuickSearch` folder. Android Studio creates `local.properties` with
-the path to your Android SDK. Under Build → Select Build Variant, choose
-**civDebug** (otherwise it may default to another flavor).
-
-### 3. Check the ATAK API version
-
-`app/build.gradle` has:
-
-```groovy
-ext.ATAK_VERSION = "5.5.0"
-```
-
-That's what the 5.5.1.8 SDK's own template uses. If you switch to a newer
-SDK, use the value from that SDK's `samples/plugintemplate/app/build.gradle`.
-
-### 4. Build
-
-Build → Build APK, or from a terminal:
-
-```
-./gradlew assembleCivDebug          # quick test build
-./gradlew assembleCivRelease        # shrunk/obfuscated, as TAK.gov's pipeline builds it
-./gradlew lintCivRelease            # 0 errors expected; remaining warnings are template leftovers
-```
-
-APKs land in `app/build/outputs/apk/civ/debug/` and `.../release/`. Install
-either as in the section above.
-
-The project is a git repository on purpose: ATAK's build plugin uses the
-latest commit's short ID as the build name and its timestamp as the Android
-version code, so commit your changes before building an APK you'll hand out.
-Outside git it falls back to version code 1, which Android treats as a
-downgrade if a newer build is installed.
-
-This exact project has been built with Gradle 8.14 / Android Gradle Plugin
-8.8.2 against the 5.5.1.8 SDK: debug, release, lint (0 errors) and the 36
-unit tests all pass.
-
-### 5. Run the unit tests (optional)
-
-```
-./gradlew testCivDebugUnitTest
-```
-
-These cover the coordinate parser and the ranking logic and run on your
-computer, no device needed.
-
----
-
-## Getting it onto everyone's phones
-
-Users running ATAK from the Play Store or TAK.gov can only load plugins
-signed by the TAK Product Center. To distribute this beyond test devices,
-submit the source through TAK.gov's third-party plugin signing process (needs
-a TAK.gov account). The pipeline builds and signs it for each ATAK version
-you request. It also builds the user manual from
-`docs/user_manual/usermanual.typ`, which is already written for this plugin.
-
----
+APKs land in `app/build/outputs/apk/civ/`. Your own builds are signed with the
+SDK's development key, so to test one, install the SDK's `atak.apk` (the
+developer build, which shows "DEVELOPER BUILD" in red) on a spare device. It
+replaces regular ATAK and its data, since both use the same package name.
 
 ## Project layout
 
@@ -228,29 +205,27 @@ app/src/main/java/com/atakmap/android/quicksearch/plugin/
     └── GeoMath.java          distance and offset helpers
 app/src/main/res/layout/      search_pane.xml, search_result_row.xml
 app/src/main/assets/plugin.xml registers QuickSearchPlugin with ATAK
-app/src/test/...              JUnit tests
-docs/user_manual/             user manual source (Typst) for the TAK.gov build
+app/src/test/...              JUnit tests (36)
+docs/user_manual/             user manual source (Typst), built by TAK.gov's pipeline
 ```
 
-ATAK APIs used (all public plugin SDK): `MapView.getRootGroup()` to walk
-items, `MapTouchController.goTo()` to fly to an item (same call the Overlay
-Manager uses), `ATAKUtilities.scaleToFit()` and
-`CameraController.Programmatic.panTo()` for coordinate jumps,
-`PlacePointTool.MarkerCreator` for the pin, `UnitPreferences` and
-`SpanUtilities` so coordinates and distances follow the user's settings, and
-for imported files the File Overlays entries' `FeatureDataStore2` (read with
-`queryFeatures`, watched with a content-changed listener) plus
-`FeatureHierarchyListItem.goTo()` to fly to a feature.
+## Changelog
+
+**1.0**
+- Targets ATAK-CIV 5.6.0 (5.6.0 plugin template).
+- Search map items and imported KML/KMZ, shapefile, GPX and GeoJSON features
+  by name, description, icon/type and group.
+- Paste-to-go for MGRS, UTM, DD, DM, DMS and map links, with optional pin drop.
 
 ## Ideas for a next version
 
+- "Show all results" on the map.
 - Filter chips (friendly / hostile / my markers / shapes).
 - Recent searches and pinned favorites.
 - Address search through ATAK's configured geocoder.
-- A setting to choose the pin's icon and color.
 
 ## License
 
 Derived from the ATAK-CIV plugin template, which is distributed under the
-GNU GPL v3 with the rest of ATAK-CIV. Keep this project under a compatible
-license if you publish it.
+GNU GPL v3 with the rest of ATAK-CIV. This project is offered under the same
+license.

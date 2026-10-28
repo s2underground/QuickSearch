@@ -4,9 +4,9 @@
 
 #show: userguide.with(
    plugin-name: "QuickSearch",
-   plugin-version: "0.4",
+   plugin-version: "1.0",
    platform: "ATAK",
-   platform-version: "5.5.0",
+   platform-version: "5.6.0",
 )
 
 
