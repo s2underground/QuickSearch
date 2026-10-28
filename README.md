@@ -67,8 +67,10 @@ DEVELOPER NOTES
 - Map items are searched on the UI thread (fast); imported-file features are
   indexed and searched on one background thread, and the index is rebuilt when
   the feature database reports a change.
-- Version code and name come from git (the template's default), so builds
-  must come from a committed checkout.
+- The Android version code is pinned in `gradle.properties`
+  (`takStaticVersion`, 1.0 = 10000) so builds don't depend on git being
+  present; bump it with every release. The build name still carries the git
+  commit ID when built from a checkout.
 
 ---
 
@@ -178,10 +180,9 @@ Releases page of github.com/TAK-Product-Center/atak-civ).
    **civRelease**.
 3. **Check `ext.ATAK_VERSION`** in `app/build.gradle` (`'5.6.0'`). For another
    SDK, use the value from that SDK's `samples/plugintemplate/app/build.gradle`.
-4. **Commit, then build** (Build → Build APK, or `./gradlew assembleCivRelease`).
-   ATAK's build plugin takes the build name from the commit ID and the version
-   code from the commit time; outside git it falls back to version code 1,
-   which Android treats as a downgrade.
+4. **Build** (Build → Build APK, or `./gradlew assembleCivRelease`). Before a
+   new release, raise `takStaticVersion` in `gradle.properties` (1.0 = 10000,
+   1.1 = 10100), or Android won't install it as an update.
 
 APKs land in `app/build/outputs/apk/civ/`. Your own builds are signed with the
 SDK's development key, so to test one, install the SDK's `atak.apk` (the
