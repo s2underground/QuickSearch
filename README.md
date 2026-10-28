@@ -24,7 +24,7 @@ template (Gradle 8.14.3, Android Gradle Plugin 8.13.0).
 _________________________________________________________________
 POINT OF CONTACTS
 
-<ADD CONTACT NAME AND EMAIL BEFORE SUBMITTING>
+S2Underground: s2underground@protonmail.com
 
 _________________________________________________________________
 PORTS REQUIRED
