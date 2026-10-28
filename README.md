@@ -96,8 +96,8 @@ Notes:
 
 ## Installing the prebuilt APK (test phone)
 
-`ATAK-Plugin-QuickSearch-0.4-5.5.0-civ-debug.apk` is signed with the SDK's
-development key, so it loads only in the **developer build of ATAK** that
+The APKs built from this project (`ATAK-Plugin-QuickSearch-<version>-<commit>-5.5.0-civ-release.apk`
+and `...-civ-debug.apk`) are signed with the SDK's development key, so it loads only in the **developer build of ATAK** that
 comes with the SDK (`atak.apk` inside `ATAK-CIV-5.5.1.8-SDK.zip`), not in the
 Play Store or TAK.gov ATAK. Use a spare phone: the developer build has the same
 package name as regular ATAK, so you have to remove regular ATAK first, which
@@ -171,11 +171,23 @@ SDK, use the value from that SDK's `samples/plugintemplate/app/build.gradle`.
 Build → Build APK, or from a terminal:
 
 ```
-./gradlew assembleCivDebug
+./gradlew assembleCivDebug          # quick test build
+./gradlew assembleCivRelease        # shrunk/obfuscated, as TAK.gov's pipeline builds it
+./gradlew lintCivRelease            # 0 errors expected; remaining warnings are template leftovers
 ```
 
-The APK lands in `app/build/outputs/apk/civ/debug/`. Install it as in the
-section above.
+APKs land in `app/build/outputs/apk/civ/debug/` and `.../release/`. Install
+either as in the section above.
+
+The project is a git repository on purpose: ATAK's build plugin uses the
+latest commit's short ID as the build name and its timestamp as the Android
+version code, so commit your changes before building an APK you'll hand out.
+Outside git it falls back to version code 1, which Android treats as a
+downgrade if a newer build is installed.
+
+This exact project has been built with Gradle 8.14 / Android Gradle Plugin
+8.8.2 against the 5.5.1.8 SDK: debug, release, lint (0 errors) and the 36
+unit tests all pass.
 
 ### 5. Run the unit tests (optional)
 
